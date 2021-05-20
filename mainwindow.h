@@ -11,6 +11,7 @@
 #include "console.h"
 #include "serialport.h"
 #include "settingsdialog.h"
+#include "motor.h"
 
 #define VERSION_SERIAL 1.0f
 
@@ -22,6 +23,7 @@ QT_END_NAMESPACE
 
 class SerialPort;
 class Console;
+class Motor;
 
 class MainWindow : public QMainWindow
 {
@@ -79,9 +81,9 @@ private:
      QSemaphore *m_semSendCmd;
      bool m_serialRun;
 
-     int *m_numberCommandeSend;
-
      Console *console;
+
+     Motor *m_motor;
 
 };
 #endif // MAINWINDOW_H
