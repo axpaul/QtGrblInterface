@@ -9,19 +9,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     console = ui->console_Window;
 
-     m_serial = new SerialPort;
-     m_serialRun = false;
+    m_serial = new SerialPort;
+    m_serialRun = false;
 
-     m_serial->start();
+    m_serial->start();
 
-     initActionsConnectionsPrio();
+    m_motor = new Motor;
 
-     m_settings = new SettingsDialog;
-     setSerialSettings();
+    //m_motor->start();
 
-     m_connection = new QString;
+    initActionsConnectionsPrio();
 
-     ui->statusbar->addWidget(m_status);
+    m_settings = new SettingsDialog;
+    setSerialSettings();
+
+    m_connection = new QString;
+    m_status = new QLabel;
+
+    ui->statusbar->addWidget(m_status);
 
     initActionsConnections();
 
@@ -51,6 +56,7 @@ void MainWindow::initActionsConnectionsPrio(){
 }
 
 void MainWindow::initActionsConnections(){
+
     connect(ui->actionQuit, &QAction::triggered, this, &MainWindow::close);
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::about);
     connect(ui->actionConfigure, &QAction::triggered, m_settings, &SettingsDialog::showSetting); // set setting serial
@@ -59,12 +65,20 @@ void MainWindow::initActionsConnections(){
     connect(ui->actionConnect, &QAction::triggered, this, &MainWindow::openSerialPort);
     connect(ui->actionDisconnect, &QAction::triggered, this, &MainWindow::closeSerialPort);
 
-    connect(m_serial, SIGNAL(serialOpenned(SerialPort::Settings)), this, SLOT(opennedSerial(SerialPort::Settings)));
-    connect(m_serial, SIGNAL(serialClosed()), this, SLOT(closedSerial()));
+    connect(m_serial, &SerialPort::serialOpenned, this, &MainWindow::opennedSerial);
+    //connect(m_serial, SIGNAL(serialOpenned(SerialPort::Settings)), this, SLOT(opennedSerial(SerialPort::Settings)));
+    connect(m_serial, &SerialPort::serialClosed, this, &MainWindow::closedSerial);
+    //connect(m_serial, SIGNAL(serialClosed()), this, SLOT(closedSerial()));
+
+    /*connect(m_serial, &SerialPort::serialOpenned, m_motor, &Motor::initMotor);
+    connect(m_serial, &SerialPort::serialClosed, m_motor, &Motor::closeSerial);
+    connect(m_serial, &SerialPort::errorEmit, m_motor, &Motor::errorSerial);
+    connect(m_motor, &Motor::sendToCmd, m_serial, &SerialPort::pushStack);*/
 
     connect(ui->button_Send, &QPushButton::clicked, this, &MainWindow::cmdToSend);
 
-    connect(this, SIGNAL(sendCommandSerial(QByteArray)), m_serial, SLOT(pushStack(QByteArray)));
+    connect(this, &MainWindow::sendCommandSerial, m_serial, &SerialPort::pushStack);
+
     connect(ui->actionClearConsole, &QAction::triggered, ui->console_Window, &QPlainTextEdit::clear);
 
 }
@@ -88,7 +102,7 @@ void MainWindow::showStatusMessage(const QString &stringConnection)
 
     message = QString("%1").arg(*m_connection);
 
-    //m_status->setText(message);
+    m_status->setText(message);
 }
 
 /* Functions settings systems */
