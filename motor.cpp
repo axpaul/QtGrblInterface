@@ -24,7 +24,9 @@ void Motor::run(){
     while(1){
         if(m_motorRun)
         {
-            while(m_motorRun && !m_errorSerial){
+            setHome();
+
+            while(m_motorRun){
 
                if(m_semStack->tryAcquire(1)){
 
@@ -43,40 +45,44 @@ void Motor::run(){
         }
         else
             QThread::usleep(100);
-
    }
 }
 
 void Motor::initMotor(){
+
     m_positionActu = 0;
-    m_positionApply = 0;  
+    m_positionApply = 0;
+
+    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor Initialisation";
+
+    m_motorRun = true;
 
 }
 
 void Motor::setHome()
 {
     m_homeApply = true;
-    m_semStack->available();
+    m_semStack->release(1);
 }
 
 void Motor::setPosition(const double position)
 {
     m_positionApply = true;
     m_positionAsk = position;
-    m_semStack->available();
+    m_semStack->release(1);
 }
 
 void Motor::errorSerial()
 {
     m_errorSerial = true;
     m_motorRun = false;
-    m_semStack->available();
+    m_semStack->release(1);
 }
 
 void Motor::closeSerial()
 {
     m_motorRun = false;
-    m_semStack->available();
+    m_semStack->release(1);
 }
 
 void Motor::movingPosition()
@@ -109,7 +115,9 @@ void Motor::movingPosition()
             emit motorState(true, m_positionActu);
 
         }while(m_positionAsk >= move);
-     emit motorState(false, m_positionActu);
+
+        emit motorState(false, m_positionActu);
+        m_positionApply = false;
 
     }
     else if (m_positionActu < m_positionAsk){
@@ -135,15 +143,17 @@ void Motor::movingPosition()
         }while(m_positionAsk <= move);
 
         emit motorState(false, m_positionActu);
+        m_positionApply = false;
     }
     else{
         emit motorState(false, m_positionActu);
+        m_positionApply = false;
     }
-
 }
 
 void Motor::movingHome()
 {
+    emit doHome();
 
     QByteArray cmd;
         cmd.resize(3);
@@ -151,5 +161,9 @@ void Motor::movingHome()
         cmd[1] = Cmd_home_H;
         cmd[2] = Cmd_end;
     emit sendToCmd(cmd);
+
+    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor send Home position";
+
+    m_homeApply = false;
 
 }

@@ -23,7 +23,6 @@
 #include <QMutex>
 
 
-
 class Motor : public QThread
 {
     Q_OBJECT
@@ -49,6 +48,7 @@ signals:
 
     void sendToCmd(QByteArray cmd);
     void motorState(const bool state, const double position);
+    void doHome();
 
 private:
 

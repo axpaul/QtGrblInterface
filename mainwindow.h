@@ -34,8 +34,7 @@ public:
     ~MainWindow();
 
     SerialPort::Settings getSerialInfo();
-    QString getSerialError();
-
+    QString getSerialError();    
 
 public slots :
     void handleErrorShow(QString error);
@@ -66,6 +65,9 @@ private:
     void initActionsConnections();
     void initActionsConnectionsPrio();
 
+    void motorbuttonActivate();
+    void motorbuttonDisactivate();
+
      void showStatusMessage(const QString &stringConnection);
 
      Ui::MainWindow *ui;
@@ -79,12 +81,13 @@ private:
      SettingsDialog *m_settings = nullptr;
 
      SerialPort *m_serial;
-     QSemaphore *m_semSendCmd;
      bool m_serialRun;
 
      Console *console;
 
      Motor *m_motor;
+
+     QMessageBox *m_infoHome;
 
 };
 #endif // MAINWINDOW_H

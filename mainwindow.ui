@@ -294,10 +294,12 @@
    </property>
    <widget class="QMenu" name="menuConnect">
     <property name="title">
-     <string>Menu</string>
+     <string>main</string>
     </property>
     <addaction name="actionConnect"/>
     <addaction name="actionDisconnect"/>
+    <addaction name="separator"/>
+    <addaction name="actionInitMotor"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -330,6 +332,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionInitMotor"/>
+   <addaction name="separator"/>
    <addaction name="actionConnect"/>
    <addaction name="actionDisconnect"/>
    <addaction name="actionConfigure"/>
@@ -395,6 +399,15 @@
    </property>
    <property name="text">
     <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionInitMotor">
+   <property name="icon">
+    <iconset resource="icone.qrc">
+     <normaloff>:/iconeMotor/icone/reset.png</normaloff>:/iconeMotor/icone/reset.png</iconset>
+   </property>
+   <property name="text">
+    <string>InitMotor</string>
    </property>
   </action>
  </widget>

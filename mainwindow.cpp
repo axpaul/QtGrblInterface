@@ -9,6 +9,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     console = ui->console_Window;
 
+    m_infoHome = new QMessageBox;
+
+    m_infoHome->setWindowModality(Qt::ApplicationModal);
+    m_infoHome->setDefaultButton(QMessageBox::Ok);
+    m_infoHome->setWindowTitle("Wait home position");
+    m_infoHome->setText("Wait for the camera to return to its initial position. "
+"\nIf the camera is in the initial position press ''Ok''. ");
+
+
+
     m_serial = new SerialPort;
     m_serialRun = false;
 
@@ -16,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_motor = new Motor;
 
-    //m_motor->start();
+    m_motor->start();
 
     initActionsConnectionsPrio();
 
@@ -40,8 +50,8 @@ MainWindow::~MainWindow(){
 
     closeSerialPort();
 
+    delete m_infoHome;
     delete m_settings;
-    delete m_semSendCmd;
     delete m_connection;
     delete ui;
 }
@@ -70,12 +80,13 @@ void MainWindow::initActionsConnections(){
     connect(m_serial, &SerialPort::serialClosed, this, &MainWindow::closedSerial);
     //connect(m_serial, SIGNAL(serialClosed()), this, SLOT(closedSerial()));
 
-    /*connect(m_serial, &SerialPort::serialOpenned, m_motor, &Motor::initMotor);
+    connect(m_serial, &SerialPort::serialOpenned, m_motor, &Motor::initMotor);
     connect(m_serial, &SerialPort::serialClosed, m_motor, &Motor::closeSerial);
     connect(m_serial, &SerialPort::errorEmit, m_motor, &Motor::errorSerial);
-    connect(m_motor, &Motor::sendToCmd, m_serial, &SerialPort::pushStack);*/
+    connect(m_motor, &Motor::sendToCmd, m_serial, &SerialPort::pushStack);
     connect(m_motor, &Motor::motorState, this, &MainWindow::showStateMotor);
-    connect(ui->button_Home, &QPushButton::clicked, this, &MainWindow::applyHome);
+
+    connect(m_motor, &Motor::doHome, this, &MainWindow::applyHome);
     connect(ui->button_Home, &QPushButton::clicked, m_motor, &Motor::setHome);
 
     connect(ui->button_Send, &QPushButton::clicked, this, &MainWindow::cmdToSend);
@@ -190,6 +201,5 @@ void MainWindow::showStateMotor(const bool state, const double position)
 
 void MainWindow::applyHome()
 {
-    QMessageBox::warning(this, "Wait home position", "Wait for the camera to return to its initial position. "
-"\nIf the camera is in the initial position press ''Ok''. ",QMessageBox::Ok);
+    m_infoHome->show();
 }
