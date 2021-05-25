@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     console = ui->console_Window;
 
-    m_infoHome = new QMessageBox;
+    m_infoHome = new QMessageBox(this);
 
     m_infoHome->setWindowModality(Qt::ApplicationModal);
     m_infoHome->setDefaultButton(QMessageBox::Ok);
@@ -78,16 +78,18 @@ void MainWindow::initActionsConnections(){
     connect(m_serial, &SerialPort::serialOpenned, this, &MainWindow::opennedSerial);
     //connect(m_serial, SIGNAL(serialOpenned(SerialPort::Settings)), this, SLOT(opennedSerial(SerialPort::Settings)));
     connect(m_serial, &SerialPort::serialClosed, this, &MainWindow::closedSerial);
-    //connect(m_serial, SIGNAL(serialClosed()), this, SLOT(closedSerial()));
 
     connect(m_serial, &SerialPort::serialOpenned, m_motor, &Motor::initMotor);
     connect(m_serial, &SerialPort::serialClosed, m_motor, &Motor::closeSerial);
     connect(m_serial, &SerialPort::errorEmit, m_motor, &Motor::errorSerial);
+    connect(m_serial, &SerialPort::dataSend, m_motor, &Motor::serialsendMessage);
     connect(m_motor, &Motor::sendToCmd, m_serial, &SerialPort::pushStack);
     connect(m_motor, &Motor::motorState, this, &MainWindow::showStateMotor);
 
     connect(m_motor, &Motor::doHome, this, &MainWindow::applyHome);
+    connect(this, &MainWindow::sendPosition, m_motor, &Motor::setPosition);
     connect(ui->button_Home, &QPushButton::clicked, m_motor, &Motor::setHome);
+    connect(ui->button_Position, &QPushButton::clicked, this, &MainWindow::applyPosition);
 
     connect(ui->button_Send, &QPushButton::clicked, this, &MainWindow::cmdToSend);
 
@@ -203,3 +205,10 @@ void MainWindow::applyHome()
 {
     m_infoHome->show();
 }
+
+void MainWindow::applyPosition()
+{
+    double position = ui->SpinBox_Position->value();
+    emit sendPosition(position);
+}
+

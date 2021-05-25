@@ -57,6 +57,7 @@ signals:
     void errorEmit(QString);
     void serialOpenned(SerialPort::Settings p);
     void serialClosed();
+    void dataSend();
 
 private:
     Settings *m_settingsPort = nullptr;

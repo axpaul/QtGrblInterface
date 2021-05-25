@@ -26,8 +26,10 @@ bool SerialPort::openSerial()
     if (m_serial->open(QIODevice::ReadWrite)) {
         m_serial->clear(QSerialPort::AllDirections);
         emit SerialPort::serialOpenned(this->settingsInfo());
+
+        QThread::msleep(1800); // wait GRBL initialisation
         return true;
-    }
+            }
     else
         return false;
 }
@@ -79,6 +81,8 @@ void SerialPort::writeData(const QByteArray data)
     m_serial->clear(QSerialPort::AllDirections);
     m_serial->write(data);
     m_serial->waitForBytesWritten();
+
+    emit dataSend();
 }
 
 void SerialPort::pushStack(QByteArray cmd) {

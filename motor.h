@@ -10,7 +10,7 @@
 #define Cmd_position_X 0x58 // X in text
 #define Cmd_position_nb9 0x39 // 9 in text
 #define Cmd_position_nb0 0x30 // 0 in text
-#define Cmd_position_nb1 0x31 // 0 in text
+#define Cmd_position_nb1 0x31 // 1 in text
 #define Cmd_neg 0x2d // - in text
 #define Cmd_point 0x2e // . in text
 
@@ -40,6 +40,7 @@ public slots:
     void closeSerial();
 
     void setHome();
+    void serialsendMessage();
 
     void setPosition(const double position);
     void errorSerial();
@@ -52,8 +53,8 @@ signals:
 
 private:
 
-    int m_positionActu;
-    int m_positionAsk;
+    double m_positionActu;
+    double m_positionAsk;
 
     bool m_motorRun;
     bool m_errorSerial;
@@ -61,6 +62,7 @@ private:
     bool m_positionApply;
 
     QSemaphore *m_semStack;
+    QSemaphore *m_semWait;
     QMutex mut;
 
 };

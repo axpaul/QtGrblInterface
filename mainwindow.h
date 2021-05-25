@@ -51,6 +51,7 @@ public slots :
 
     void showStateMotor(const bool state, const double position);
     void applyHome();
+    void applyPosition();
 
 private slots :
     void about();
@@ -60,6 +61,7 @@ signals:
     void serialOppened(SerialPort::Settings p);
     void serialClosed();
     void sendCommandSerial(QByteArray data);
+    void sendPosition(const double position);
 
 private:
     void initActionsConnections();
@@ -68,7 +70,7 @@ private:
     void motorbuttonActivate();
     void motorbuttonDisactivate();
 
-     void showStatusMessage(const QString &stringConnection);
+    void showStatusMessage(const QString &stringConnection);
 
      Ui::MainWindow *ui;
 
