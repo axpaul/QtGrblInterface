@@ -9,7 +9,6 @@ SerialPort::SerialPort() {
 SerialPort::~SerialPort() {
     delete m_serial;
     delete m_settingsPort;
-    delete m_semSerialPort;
     delete m_semStack;
 }
 
@@ -27,8 +26,10 @@ bool SerialPort::openSerial()
     if (m_serial->open(QIODevice::ReadWrite)) {
         m_serial->clear(QSerialPort::AllDirections);
         emit SerialPort::serialOpenned(this->settingsInfo());
+
+        QThread::msleep(1800); // wait GRBL initialisation
         return true;
-    }
+            }
     else
         return false;
 }
@@ -80,6 +81,8 @@ void SerialPort::writeData(const QByteArray data)
     m_serial->clear(QSerialPort::AllDirections);
     m_serial->write(data);
     m_serial->waitForBytesWritten();
+
+    emit dataSend();
 }
 
 void SerialPort::pushStack(QByteArray cmd) {
@@ -106,7 +109,6 @@ void SerialPort::run() {
     m_serial = new QSerialPort;
     m_settingsPort = new Settings;
 
-    m_semSerialPort = new QSemaphore(1);
     m_semStack = new QSemaphore(0);
 
     m_serialRun = false;

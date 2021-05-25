@@ -9,10 +9,10 @@
 #define Cmd_echelle_nb1 0x31 // 1 in text
 #define Cmd_position_X 0x58 // X in text
 #define Cmd_position_nb9 0x39 // 9 in text
-#define Cmd_position_nb0 0x30 // 0 in text
-#define Cmd_position_nb1 0x31 // 1 in text
+#define Cmd_position_nb0 0x30 // 0 in text 
+#define Cmd_position_nb1 0x31 // 0 in text 
 #define Cmd_neg 0x2d // - in text
-#define Cmd_point 0x2e // . in text
+#define Cmd
 
 #include <QThread>
 #include <QObject>
@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QSemaphore>
 #include <QMutex>
+
 
 
 class Motor : public QThread
@@ -40,7 +41,6 @@ public slots:
     void closeSerial();
 
     void setHome();
-    void serialsendMessage();
 
     void setPosition(const double position);
     void errorSerial();
@@ -49,12 +49,11 @@ signals:
 
     void sendToCmd(QByteArray cmd);
     void motorState(const bool state, const double position);
-    void doHome();
 
 private:
 
-    double m_positionActu;
-    double m_positionAsk;
+    int m_positionActu;
+    int m_positionAsk;
 
     bool m_motorRun;
     bool m_errorSerial;
@@ -62,7 +61,6 @@ private:
     bool m_positionApply;
 
     QSemaphore *m_semStack;
-    QSemaphore *m_semWait;
     QMutex mut;
 
 };

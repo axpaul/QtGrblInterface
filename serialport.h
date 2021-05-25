@@ -57,6 +57,7 @@ signals:
     void errorEmit(QString);
     void serialOpenned(SerialPort::Settings p);
     void serialClosed();
+    void dataSend();
 
 private:
     Settings *m_settingsPort = nullptr;
@@ -64,7 +65,6 @@ private:
     QTimer *m_waitTimerReponse = nullptr;
 
     int m_waitTimeout = 1500;
-    QSemaphore *m_semSerialPort;
     QSemaphore *m_semStack;
     QStack<QByteArray> m_stack;
     bool m_serialRun;

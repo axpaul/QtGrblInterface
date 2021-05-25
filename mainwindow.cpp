@@ -1,4 +1,4 @@
-   #include "mainwindow.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -9,6 +9,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     console = ui->console_Window;
 
+    m_infoHome = new QMessageBox(this);
+
+    m_infoHome->setWindowModality(Qt::ApplicationModal);
+    m_infoHome->setDefaultButton(QMessageBox::Ok);
+    m_infoHome->setWindowTitle("Wait home position");
+    m_infoHome->setText("Wait for the camera to return to its initial position. "
+"\nIf the camera is in the initial position press ''Ok''. ");
+
+
+
     m_serial = new SerialPort;
     m_serialRun = false;
 
@@ -16,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_motor = new Motor;
 
-    //m_motor->start();
+    m_motor->start();
 
     initActionsConnectionsPrio();
 
@@ -40,8 +50,8 @@ MainWindow::~MainWindow(){
 
     closeSerialPort();
 
+    delete m_infoHome;
     delete m_settings;
-    delete m_semSendCmd;
     delete m_connection;
     delete ui;
 }
@@ -68,12 +78,18 @@ void MainWindow::initActionsConnections(){
     connect(m_serial, &SerialPort::serialOpenned, this, &MainWindow::opennedSerial);
     //connect(m_serial, SIGNAL(serialOpenned(SerialPort::Settings)), this, SLOT(opennedSerial(SerialPort::Settings)));
     connect(m_serial, &SerialPort::serialClosed, this, &MainWindow::closedSerial);
-    //connect(m_serial, SIGNAL(serialClosed()), this, SLOT(closedSerial()));
 
-    /*connect(m_serial, &SerialPort::serialOpenned, m_motor, &Motor::initMotor);
+    connect(m_serial, &SerialPort::serialOpenned, m_motor, &Motor::initMotor);
     connect(m_serial, &SerialPort::serialClosed, m_motor, &Motor::closeSerial);
     connect(m_serial, &SerialPort::errorEmit, m_motor, &Motor::errorSerial);
-    connect(m_motor, &Motor::sendToCmd, m_serial, &SerialPort::pushStack);*/
+    connect(m_serial, &SerialPort::dataSend, m_motor, &Motor::serialsendMessage);
+    connect(m_motor, &Motor::sendToCmd, m_serial, &SerialPort::pushStack);
+    connect(m_motor, &Motor::motorState, this, &MainWindow::showStateMotor);
+
+    connect(m_motor, &Motor::doHome, this, &MainWindow::applyHome);
+    connect(this, &MainWindow::sendPosition, m_motor, &Motor::setPosition);
+    connect(ui->button_Home, &QPushButton::clicked, m_motor, &Motor::setHome);
+    connect(ui->button_Position, &QPushButton::clicked, this, &MainWindow::applyPosition);
 
     connect(ui->button_Send, &QPushButton::clicked, this, &MainWindow::cmdToSend);
 
@@ -173,9 +189,26 @@ void MainWindow::cmdToSend()
    emit sendCommandSerial(dataToSend);
 }
 
-/* Motor actual */
+/* Motor */
 
-void MainWindow::motorRun()
+void MainWindow::showStateMotor(const bool state, const double position)
 {
+    ui->lcdNumber->display(position);
 
+    if (state == true)
+        ui->label_state->setText("Motor States : Run");
+    else
+        ui->label_state->setText("Motor States : Still");
 }
+
+void MainWindow::applyHome()
+{
+    m_infoHome->show();
+}
+
+void MainWindow::applyPosition()
+{
+    double position = ui->SpinBox_Position->value();
+    emit sendPosition(position);
+}
+
