@@ -66,6 +66,7 @@ void Motor::setPosition(const double position)
 void Motor::errorSerial()
 {
 
+
 }
 
 void Motor::closeSerial()
@@ -98,8 +99,14 @@ void Motor::movingPosition()
 
         do{
             move+= 0.1;
+            emit sendToCmd(cmd);
+            QThread::usleep(100);
+            m_positionActu = move;
+            emit motorState(true, m_positionActu);
 
         }while(m_positionAsk >= move);
+
+        emit motorState(false, m_positionActu);
 
     }
     else if (m_positionActu < m_positionAsk)
@@ -118,13 +125,20 @@ void Motor::movingPosition()
         cmd[10] = Cmd_end;
 
         do{
+            move-= 0.1;
+            emit sendToCmd(cmd);
+            QThread::usleep(100);
+            m_positionActu = move;
+            emit motorState(true, m_positionActu);
 
         }while(m_positionAsk <= move);
+
+        emit motorState(false, m_positionActu);
 
     }
     else
     {
-
+        emit motorState(false, m_positionActu);
     }
 
 
