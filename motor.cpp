@@ -22,10 +22,12 @@ void Motor::run(){
     qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] " << QThread::currentThread();
 
     while(1){
-        if(m_motorRun){
+        if(m_motorRun)
+        {
             while(m_motorRun && !m_errorSerial){
-               if(m_semStack->tryAcquire(1))
-               {
+
+               if(m_semStack->tryAcquire(1)){
+
                    mut.lock();
 
                    if (m_homeApply){
@@ -34,20 +36,21 @@ void Motor::run(){
                    else if (m_positionApply){
                        movingPosition();
                    }
-                   else{
-                       QThread::usleep(10);
-                   }
 
                    mut.unlock();
-                }
+               }
             }
         }
+        else
+            QThread::usleep(100);
+
    }
 }
 
 void Motor::initMotor(){
     m_positionActu = 0;
     m_positionApply = 0;  
+
 }
 
 void Motor::setHome()
@@ -65,13 +68,15 @@ void Motor::setPosition(const double position)
 
 void Motor::errorSerial()
 {
-
-
+    m_errorSerial = true;
+    m_motorRun = false;
+    m_semStack->available();
 }
 
 void Motor::closeSerial()
 {
-
+    m_motorRun = false;
+    m_semStack->available();
 }
 
 void Motor::movingPosition()
@@ -81,8 +86,7 @@ void Motor::movingPosition()
 
     move = m_positionActu;
 
-    if (m_positionActu > m_positionAsk)
-    {
+    if (m_positionActu > m_positionAsk){
         cmd.resize(12);
         cmd[0] = Cmd_gcode;
         cmd[1] = Cmd_echelle_nb2;
@@ -105,12 +109,10 @@ void Motor::movingPosition()
             emit motorState(true, m_positionActu);
 
         }while(m_positionAsk >= move);
-
-        emit motorState(false, m_positionActu);
+     emit motorState(false, m_positionActu);
 
     }
-    else if (m_positionActu < m_positionAsk)
-    {
+    else if (m_positionActu < m_positionAsk){
         cmd.resize(11);
         cmd[0] = Cmd_gcode;
         cmd[1] = Cmd_echelle_nb2;
@@ -130,17 +132,13 @@ void Motor::movingPosition()
             QThread::usleep(100);
             m_positionActu = move;
             emit motorState(true, m_positionActu);
-
         }while(m_positionAsk <= move);
 
         emit motorState(false, m_positionActu);
-
     }
-    else
-    {
+    else{
         emit motorState(false, m_positionActu);
     }
-
 
 }
 
