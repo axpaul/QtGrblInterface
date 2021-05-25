@@ -74,6 +74,9 @@ void MainWindow::initActionsConnections(){
     connect(m_serial, &SerialPort::serialClosed, m_motor, &Motor::closeSerial);
     connect(m_serial, &SerialPort::errorEmit, m_motor, &Motor::errorSerial);
     connect(m_motor, &Motor::sendToCmd, m_serial, &SerialPort::pushStack);*/
+    connect(m_motor, &Motor::motorState, this, &MainWindow::showStateMotor);
+    connect(ui->button_Home, &QPushButton::clicked, this, &MainWindow::applyHome);
+    connect(ui->button_Home, &QPushButton::clicked, m_motor, &Motor::setHome);
 
     connect(ui->button_Send, &QPushButton::clicked, this, &MainWindow::cmdToSend);
 
@@ -173,9 +176,20 @@ void MainWindow::cmdToSend()
    emit sendCommandSerial(dataToSend);
 }
 
-/* Motor actual */
+/* Motor */
 
-void MainWindow::motorRun()
+void MainWindow::showStateMotor(const bool state, const double position)
 {
+    ui->lcdNumber->display(position);
 
+    if (state == true)
+        ui->label_state->setText("Motor States : Run");
+    else
+        ui->label_state->setText("Motor States : Still");
+}
+
+void MainWindow::applyHome()
+{
+    QMessageBox::warning(this, "Wait home position", "Wait for the camera to return to its initial position. "
+"\nIf the camera is in the initial position press ''Ok''. ",QMessageBox::Ok);
 }

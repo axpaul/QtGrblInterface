@@ -9,7 +9,6 @@ SerialPort::SerialPort() {
 SerialPort::~SerialPort() {
     delete m_serial;
     delete m_settingsPort;
-    delete m_semSerialPort;
     delete m_semStack;
 }
 
@@ -106,7 +105,6 @@ void SerialPort::run() {
     m_serial = new QSerialPort;
     m_settingsPort = new Settings;
 
-    m_semSerialPort = new QSemaphore(1);
     m_semStack = new QSemaphore(0);
 
     m_serialRun = false;

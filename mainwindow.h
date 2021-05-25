@@ -50,7 +50,8 @@ public slots :
     void openSerialPort();
     void closeSerialPort();
 
-    void motorRun();
+    void showStateMotor(const bool state, const double position);
+    void applyHome();
 
 private slots :
     void about();
