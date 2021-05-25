@@ -58,6 +58,7 @@ void Motor::initMotor(){
     qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor Initialisation";
 
     m_motorRun = true;
+    m_errorSerial = false;
 
 }
 
@@ -78,12 +79,18 @@ void Motor::errorSerial()
 {
     m_errorSerial = true;
     m_motorRun = false;
+
+    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Serial error confirm";
+
     m_semStack->release(1);
 }
 
 void Motor::closeSerial()
 {
     m_motorRun = false;
+
+    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Serial closed confirm";
+
     m_semStack->release(1);
 }
 
@@ -109,18 +116,6 @@ void Motor::movingPosition()
         cmd[9] = Cmd_point;
         cmd[10] = Cmd_position_nb1;
         cmd[11] = Cmd_end;
-
-        /*do{
-            if (m_semWait->tryAcquire(1))
-            {
-                qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor send position :";
-
-                emit sendToCmd(cmd);
-                QThread::msleep(300); // Time to travel
-                m_positionActu -= 0.1;
-                emit motorState(true, m_positionActu);
-            }
-        }while (m_positionActu == m_positionAsk);*/
 
         counterMax = (m_positionActu-m_positionAsk)/(0.1);
 
@@ -153,18 +148,6 @@ void Motor::movingPosition()
         cmd[8] = Cmd_point;
         cmd[9] = Cmd_position_nb1;
         cmd[10] = Cmd_end;
-
-       /* do{
-            if (m_semWait->tryAcquire(1))
-            {
-                qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor send position :";
-
-                emit sendToCmd(cmd);
-                QThread::msleep(300); // Time to travel
-                m_positionActu += 0.1;
-                emit motorState(true, m_positionActu);
-            }
-        }while (m_positionActu == m_positionAsk);*/
 
         counterMax = (m_positionAsk-m_positionActu)/(0.1);
 

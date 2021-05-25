@@ -69,6 +69,7 @@ private:
 
     void motorbuttonActivate();
     void motorbuttonDisactivate();
+    void motorNobuttonAll();
 
     void showStatusMessage(const QString &stringConnection);
 
