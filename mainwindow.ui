@@ -14,11 +14,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GRBL Interface 1.0</string>
+   <string>GRBL Interface 1.1</string>
   </property>
   <property name="windowIcon">
    <iconset resource="icone.qrc">
-    <normaloff>:/iconeWindows/icone/saber.png</normaloff>:/iconeWindows/icone/saber.png</iconset>
+    <normaloff>:/iconeMotor/icone/route.png</normaloff>:/iconeMotor/icone/route.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">

@@ -15,7 +15,7 @@ public:
 
     void putData(const QByteArray &data);
 
-    void setLocalEchoEnabled(bool set);
+    //void setLocalEchoEnabled(bool set);
 
 protected:
     void keyPressEvent(QKeyEvent *e) Q_DECL_OVERRIDE;
@@ -24,7 +24,7 @@ protected:
     //void contextMenuEvent(QContextMenuEvent *e) Q_DECL_OVERRIDE;
 
 private:
-    bool localEchoEnabled;
+   // bool localEchoEnabled;
 
 };
 

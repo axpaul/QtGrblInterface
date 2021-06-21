@@ -17,8 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_infoHome->setText("Wait for the camera to return to its initial position. "
 "\nIf the camera is in the initial position press ''Ok''. ");
 
-
-
     m_serial = new SerialPort;
     m_serialRun = false;
 
@@ -40,8 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     initActionsConnections();
 
-    ui->actionConnect->setEnabled(true);
-    ui->actionDisconnect->setEnabled(false);
+    motorbuttonDisactivate();
 
     qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MAINWINDOW] " << QThread::currentThread();
 }
@@ -143,6 +140,8 @@ void MainWindow::opennedSerial(SerialPort::Settings p) {
     showStatusMessage(QString("Connected to %1 : %2, %3, %4, %5, %6")
                       .arg(p.name).arg(p.stringBaudRate).arg(p.stringDataBits)
                       .arg(p.stringParity).arg(p.stringStopBits).arg(p.stringFlowControl));
+
+    motorbuttonActivate();
 }
 
 void MainWindow::closedSerial() {
@@ -150,20 +149,23 @@ void MainWindow::closedSerial() {
     m_serialRun = false;
     m_serial->clearStack();
     showStatusMessage(QString("Disconnected"));
+
+    motorbuttonDisactivate();
 }
 
 void MainWindow::openSerialPort() {
     qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss")<< "][MAINWINDOW] Send Serial open";
     m_serial->setSerialRun(true);
-    ui->actionConnect->setEnabled(false);
-    ui->actionDisconnect->setEnabled(true);
+
+    motorNobuttonAll();
 }
 
 void MainWindow::closeSerialPort() {
     qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss")<< "][MAINWINDOW] Send Serial close";
     m_serial->setSerialRun(false);
-    ui->actionConnect->setEnabled(true);
-    ui->actionDisconnect->setEnabled(false);
+
+    motorNobuttonAll();
+
 }
 
 /* Error function */
@@ -212,3 +214,32 @@ void MainWindow::applyPosition()
     emit sendPosition(position);
 }
 
+void MainWindow::motorbuttonActivate()
+{
+    ui->actionConnect->setEnabled(false);
+    ui->actionDisconnect->setEnabled(true);
+    ui->button_Home->setEnabled(true);
+    ui->button_Position->setEnabled(true);
+    ui->button_Home->setEnabled(true);
+    ui->button_Send->setEnabled(true);
+}
+
+void MainWindow::motorbuttonDisactivate()
+{
+    ui->actionConnect->setEnabled(true);
+    ui->actionDisconnect->setEnabled(false);
+    ui->button_Home->setEnabled(false);
+    ui->button_Position->setEnabled(false);
+    ui->button_Home->setEnabled(false);
+    ui->button_Send->setEnabled(false);
+}
+
+void MainWindow::motorNobuttonAll()
+{
+    ui->actionConnect->setEnabled(false);
+    ui->actionDisconnect->setEnabled(false);
+    ui->button_Home->setEnabled(false);
+    ui->button_Position->setEnabled(false);
+    ui->button_Home->setEnabled(false);
+    ui->button_Send->setEnabled(false);
+}

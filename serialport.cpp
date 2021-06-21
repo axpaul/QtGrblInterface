@@ -77,7 +77,7 @@ void SerialPort::settingUpdate(SerialPort::Settings settingPort)
 
 void SerialPort::writeData(const QByteArray data)
 {
-    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][SERIAL] cmd sent : " << hex << data.toHex();
+    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][SERIAL] cmd sent : " << Qt::hex << data.toHex();
     m_serial->clear(QSerialPort::AllDirections);
     m_serial->write(data);
     m_serial->waitForBytesWritten();

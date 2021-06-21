@@ -58,6 +58,7 @@ void Motor::initMotor(){
     qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor Initialisation";
 
     m_motorRun = true;
+    m_errorSerial = false;
 
 }
 
@@ -78,21 +79,31 @@ void Motor::errorSerial()
 {
     m_errorSerial = true;
     m_motorRun = false;
+
+    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Serial error confirm";
+
     m_semStack->release(1);
 }
 
 void Motor::closeSerial()
 {
     m_motorRun = false;
+
+    qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Serial closed confirm";
+
     m_semStack->release(1);
 }
 
 void Motor::movingPosition()
 {
+
     QByteArray cmd;
     int counterMax(0), counter(0);
 
     m_semWait->release(1);
+
+    //int positionActue = qRound(m_positionActu*10);
+    //int positionAsk = qRound(m_positionAsk*10);
 
     if (m_positionActu > m_positionAsk){
 
@@ -110,21 +121,9 @@ void Motor::movingPosition()
         cmd[10] = Cmd_position_nb1;
         cmd[11] = Cmd_end;
 
-        /*do{
-            if (m_semWait->tryAcquire(1))
-            {
-                qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor send position :";
+        counterMax = qRound(m_positionActu*10)-qRound(m_positionAsk*10);
 
-                emit sendToCmd(cmd);
-                QThread::msleep(300); // Time to travel
-                m_positionActu -= 0.1;
-                emit motorState(true, m_positionActu);
-            }
-        }while (m_positionActu == m_positionAsk);*/
-
-        counterMax = (m_positionActu-m_positionAsk)/(0.1);
-
-        for (counter = 1 ; counter != counterMax ; counter++)
+        for (counter = 1 ; counter <= counterMax ; counter++)
         {
             if (m_semWait->tryAcquire(1))
             {
@@ -132,7 +131,8 @@ void Motor::movingPosition()
 
                 emit sendToCmd(cmd);
                 QThread::msleep(300); // Time to travel
-                m_positionActu -= 0.1;
+                m_positionActu -= 0.1f;
+                qRound(m_positionActu);
                 emit motorState(true, m_positionActu);
             }
         }
@@ -154,21 +154,9 @@ void Motor::movingPosition()
         cmd[9] = Cmd_position_nb1;
         cmd[10] = Cmd_end;
 
-       /* do{
-            if (m_semWait->tryAcquire(1))
-            {
-                qDebug() << "[" << QDateTime::currentDateTime().toString("dd-MM-yyyy_HH.mm.ss") << "][MOTOR] Motor send position :";
+        counterMax = qRound(m_positionAsk*10)-qRound(m_positionActu*10);
 
-                emit sendToCmd(cmd);
-                QThread::msleep(300); // Time to travel
-                m_positionActu += 0.1;
-                emit motorState(true, m_positionActu);
-            }
-        }while (m_positionActu == m_positionAsk);*/
-
-        counterMax = (m_positionAsk-m_positionActu)/(0.1);
-
-        for (counter = 1 ; counter != counterMax ; counter++)
+        for (counter = 1 ; counter <= counterMax ; counter++)
         {
             if (m_semWait->tryAcquire(1))
             {
@@ -176,7 +164,8 @@ void Motor::movingPosition()
 
                 emit sendToCmd(cmd);
                 QThread::msleep(300); // Time to travel
-                m_positionActu += 0.1;
+                m_positionActu += 0.1f;
+                qRound(m_positionActu);
                 emit motorState(true, m_positionActu);
             }
         }
@@ -189,6 +178,7 @@ void Motor::movingPosition()
     }
 
     m_positionApply = false;
+
 }
 
 void Motor::movingHome()
